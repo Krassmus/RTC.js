@@ -21,11 +21,41 @@ You establish a webRTC connection just like you do a call of jQuery.ajax:
         }
     });
 
-This is how you send an offer to someone. And once you receive the answer (that can will sadly not be in the result of the ajax-call, but most likely to be the result of another ajax-call, but it could also be an event of a websocket or whatever you chose as your signaling way), you will need to insert this answer into the same connection object:
+This is how you send an offer to someone. And once you receive the answer (that will sadly not be in the result of the ajax-call, but most likely to be the result of another ajax-call that requests news from the server periodically, but it could also be an event of a websocket or whatever you chose as your signaling way), you will need to insert this answer into the same connection object:
 
     connection.insertAnswer(answer);
 
 After that the connection should be established. This is a two-step-way of establishing a webRTC-connection: first send an offer and then receive the answer.
+
+But of course there is also another part of establishing the connection and that is the other user, who is not sending the offer, but receiving it. 
+
+    var getNewsFromServer = function () {
+        jQuery.ajax({
+             'url': "https://myserver/get_news",
+             'dataType': "json",
+             'success': function (result) {
+                 if (result.offer && window.confirm("Incoming user call. Do you want to answer the call?")) {
+                     var connection = new RTC.Connection({
+                         'myvideo': document.getElementById("#me_smiling_in_the_cam"),
+                         'video': document.getElementById("#remoteuser_smiling_in_the_cam"),
+                         'offer': result.offer,
+                         'sendAnswer': function (answer) {
+                             //and here we send the offer right sto our signalling server
+                             jQuery.ajax({
+                                 'url': "https://myserver/signaling/answer",
+                                 'data': {
+                                     'answer_sdp': offer
+                                 }
+                             });
+                         }
+                     });
+                 }
+             }
+        });
+    };
+    window.setInterval(getNewsFromServer, 1000);
+
+This part is a bit more complex, because we've also written a part of the signaling process to demonstrate how the answer is coming to the connection.
 
 ## Signaling
 
