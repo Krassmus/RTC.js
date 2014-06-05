@@ -62,3 +62,7 @@ This part is a bit more complex, because we've also written a part of the signal
 The whole process of sending and receiving is called the signaling in webRTC. It is up to you to deliver the offers and answers from one user to another. This is at first a problem of webRTC but in second sight a huge benefit. Because you are independend of any architecture or technology that might be required. For example, if webRTC would demand you to use websockets, this would cause almost all kind of PHP-softwares to be unusable with webRTC, because PHP is not quite good in providing websockets to its users.
 
 This RTC.js library unlike other libraries still leaves the signaling to you so you still have the full flexibility that webRTC wanted to give you.
+
+## License
+
+MIT license. Enjoy!
