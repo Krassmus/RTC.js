@@ -50,7 +50,7 @@ RTC = {
             };
         }
         if (!this.options.TURN) {
-            this.options.STUN = {
+            this.options.TURN = {
                 url: 'turn:turn.bistri.com:80',
                 username: 'homeo',
                 credential: 'homeo'
@@ -76,14 +76,39 @@ RTC = {
             peer.addStream(this.options.myaudio);
         }
 
-        peer.createOffer(function(offer) {
-            peer.setLocalDescription(RTC.SessionDescription(offer), function() {
-                // send the offer to a server to be forwarded the friend you're calling.
-                connection.options.sendOffer.call(connection, offer);
-            }, function () {});
-        }, function (error) {
-            connection.options.error.call(connection, error);
-        });
+        if (this.options.offer) {
+            var dict = RTC.SessionDescription({
+                'type': "offer",
+                'sdp': this.options.offer
+            });
+            peer.setRemoteDescription(
+                dict,
+                function() {
+                    peer.createAnswer(function(answer) {
+                        peer.setLocalDescription(RTC.SessionDescription(answer), function() {
+                            if (typeof connection.options.sendAnswer === "function") {
+                                connection.options.sendAnswer.call(connection, answer.sdp);
+                            }
+                        }, function () {});
+                    }, function () {});
+                    connection.options.complete.call(connection);
+                },
+                function (error) {
+                    connection.options.error.call(connection, error);
+                }
+            );
+        }
+
+        if (!this.options.offer && typeof this.options.sendOffer === "function") {
+            peer.createOffer(function(offer) {
+                peer.setLocalDescription(RTC.SessionDescription(offer), function() {
+                    // send the offer to a server to be forwarded the friend you're calling.
+                    connection.options.sendOffer.call(connection, offer.sdp);
+                }, function () {});
+            }, function (error) {
+                connection.options.error.call(connection, error);
+            });
+        }
     },
     Peer: function (parameter) {
         var genericRTCPeerConnection;
@@ -119,6 +144,19 @@ RTC = {
             genericRTCSessionDescription = msRTCSessionDescription;
         }
         return new genericRTCSessionDescription(parameter);
+    },
+    getUserMedia: function (options, callback) {
+        if (typeof options === "function") {
+            callback = options;
+            options = {video:true, audio:true};
+        }
+        navigator.genericGetUserMedia = (
+            navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia ||
+            navigator.msGetUserMedia
+        );
+        navigator.genericGetUserMedia(options, callback, function (error) {});
     }
 };
 

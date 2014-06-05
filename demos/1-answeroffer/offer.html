@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Demo 1 - offer.html</title>
+<style>
+body {
+	font-family: helvetica, verdana, arial;
+	max-width: 600px;
+	margin-left: auto;
+	margin-right: auto;
+	background-color: #eeeeee;
+}
+h1,h2,h3,h4,h5,h6 {
+	color: #555555;
+}
+video, video:focus {
+	border: 2px solid #888888;
+	background-color: #aaaaaa;
+	border-radius: 10px;
+}
+</style>
+<script src="../../RTC.js"></script>
+<script>
+RTC.getUserMedia(function (localstream) {
+	window.document.getElementById("me").src = window.URL.createObjectURL(localstream);
+	var connection = new RTC.Connection({
+		'myvideo': localstream,
+		'sendOffer': function (offer) {
+			console.log(offer);
+		}
+	});
+});
+</script>
+</head>
+<body>
+<h1>Demo 1 - offer.html</h1>
+<p>
+	You are sending an offer to the other user. The other user has to view <a href="./answer.html">answer.html</a> and will receive your offer and hopefully answers it. After that you should receive the answer and after THAT the connection is established and you will see each other's smiles and will be able to talk with each other. WebRTC works then.
+</p>
+<div>
+	<video id="remote" width="300px" height="300px"></video>
+	<video id="me" width="100px" height="100px" autoplay></video>
+</div>
+
+<p>
+	The magic of this example is that you can see clearly what happens at which time. I separated the code into two different HTML documents to let you see what is the difference between the offerer and the answerer. In the next <a href="../2-groupchat/index.html">demo 2 - groupchat</a> you will see that it is unusual that the first person to enter a chat starts that chat with an offer.
+</p>
+</body>
+</html>
