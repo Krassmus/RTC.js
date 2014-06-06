@@ -20,16 +20,47 @@ video, video:focus {
 }
 </style>
 <script src="../../RTC.js"></script>
+<script src="./jquery.min.js"></script>
 <script>
+var protocol = function (text) {
+	jQuery("<li>").text(text).appendTo("#protocol");
+}
+
+var connection = null;
 RTC.getUserMedia(function (localstream) {
+	protocol("localstream available");
 	window.document.getElementById("me").src = window.URL.createObjectURL(localstream);
-	var connection = new RTC.Connection({
+	connection = new RTC.Connection({
 		'myvideo': localstream,
 		'sendOffer': function (offer) {
-			console.log(offer);
+			protocol("offer created");
+			jQuery.ajax({
+				'url': "./signaling.php",
+				'data': {
+					'offer': offer
+				},
+				'type': "post",
+				'success': function () {
+					protocol("offer delivered to server");
+				}
+			});
 		}
 	});
 });
+window.setInterval(function () {
+	jQuery.ajax({
+		'url': "./signaling.php",
+		'data': {
+			'get': "answer"
+		},
+		'success': function (answer) {
+			if (answer.length > 0) {
+				protocol("received answer");
+				connection.insertAnswer(answer);
+			}
+		}
+	});
+}, 1000);
 </script>
 </head>
 <body>
@@ -38,10 +69,14 @@ RTC.getUserMedia(function (localstream) {
 	You are sending an offer to the other user. The other user has to view <a href="./answer.html">answer.html</a> and will receive your offer and hopefully answers it. After that you should receive the answer and after THAT the connection is established and you will see each other's smiles and will be able to talk with each other. WebRTC works then.
 </p>
 <div>
-	<video id="remote" width="300px" height="300px"></video>
-	<video id="me" width="100px" height="100px" autoplay></video>
+	<video id="remote" width="300px" height="300px" autoplay></video>
+	<video id="me" width="100px" height="100px" autoplay muted></video>
 </div>
 
+<h2>Protocol</h2>
+<ol id="protocol"></ol>
+
+<h2>Description</h2>
 <p>
 	The magic of this example is that you can see clearly what happens at which time. I separated the code into two different HTML documents to let you see what is the difference between the offerer and the answerer. In the next <a href="../2-groupchat/index.html">demo 2 - groupchat</a> you will see that it is unusual that the first person to enter a chat starts that chat with an offer.
 </p>
