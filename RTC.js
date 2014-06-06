@@ -56,24 +56,30 @@ RTC = {
                 credential: 'homeo'
             }
         }
+        if (typeof this.options.error !== "function") {
+            this.options.error = function () {};
+        }
 
-        var peer = RTC.Peer({
+        this.peer = RTC.Peer({
             'iceServers': [this.options.STUN, this.options.TURN]
         });
 
-        peer.onaddstream = function (event) {
-            console.log(event);
+        this.peer.onaddstream = function (event) {
             connection.options.video.src = window.URL.createObjectURL(event.stream);
-            if (connection.options.success) {
-                connection.options.success.call(connection, event);
-            }
         }
+        this.peer.onsignalingstatechange = function (event) {
+            if (event === "stable") {
+                if (typeof connection.options.complete === "function") {
+                    connection.options.complete.call(connection, event);
+                }
+            }
+        };
 
         if (this.options.myvideo) {
-            peer.addStream(this.options.myvideo);
+            this.peer.addStream(this.options.myvideo);
         }
         if (this.options.myaudio) {
-            peer.addStream(this.options.myaudio);
+            this.peer.addStream(this.options.myaudio);
         }
 
         if (this.options.offer) {
@@ -81,32 +87,35 @@ RTC = {
                 'type': "offer",
                 'sdp': this.options.offer
             });
-            peer.setRemoteDescription(
+            this.peer.setRemoteDescription(
                 dict,
                 function() {
-                    peer.createAnswer(function(answer) {
-                        peer.setLocalDescription(RTC.SessionDescription(answer), function() {
+                    connection.peer.createAnswer(function(answer) {
+                        connection.peer.setLocalDescription(RTC.SessionDescription(answer), function() {
                             if (typeof connection.options.sendAnswer === "function") {
                                 connection.options.sendAnswer.call(connection, answer.sdp);
                             }
                         }, function () {});
                     }, function () {});
-                    connection.options.complete.call(connection);
                 },
                 function (error) {
-                    connection.options.error.call(connection, error);
+                    if (typeof connection.options.error === "function") {
+                        connection.options.error.call(connection, error);
+                    }
                 }
             );
         }
 
         if (!this.options.offer && typeof this.options.sendOffer === "function") {
-            peer.createOffer(function(offer) {
-                peer.setLocalDescription(RTC.SessionDescription(offer), function() {
+            this.peer.createOffer(function(offer) {
+                connection.peer.setLocalDescription(RTC.SessionDescription(offer), function() {
                     // send the offer to a server to be forwarded the friend you're calling.
                     connection.options.sendOffer.call(connection, offer.sdp);
                 }, function () {});
             }, function (error) {
-                connection.options.error.call(connection, error);
+                if (typeof connection.options.error === "function") {
+                    connection.options.error.call(connection, error);
+                }
             });
         }
     },
@@ -171,10 +180,11 @@ RTC.Connection.prototype.insertAnswer = function (answer) {
         this.peer.setRemoteDescription(
             dict,
             function() {
-                connection.options.complete.call(connection);
             },
             function (error) {
-                connection.options.error.call(connection, error);
+                if (typeof connection.options.error === "function") {
+                    connection.options.error.call(connection, error);
+                }
             }
         );
     }

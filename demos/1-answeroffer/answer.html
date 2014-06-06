@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Demo 1 - offer.html</title>
+<title>Demo 1 - answer.html</title>
 <style>
 body {
 	font-family: helvetica, verdana, arial;
@@ -27,22 +27,25 @@ var protocol = function (text) {
 }
 
 var connection = null;
-RTC.getUserMedia(function (localstream) {
-	protocol("localstream available");
-	window.document.getElementById("me").src = window.URL.createObjectURL(localstream);
-	connection = new RTC.Connection({
+var localstream = null;
+var offer = null;
+
+var answerOffer = function (offer, stream) {
+	protocol("beginning to answer the offer");
+	var connection = new RTC.Connection({
 		'myvideo': localstream,
 		'video': window.document.getElementById("remote"),
-		'sendOffer': function (offer) {
-			protocol("offer created");
+		'offer': offer,
+		'sendAnswer': function (answer) {
+			protocol("answer created");
 			jQuery.ajax({
 				'url': "./signaling.php",
 				'data': {
-					'offer': offer
+					'answer': answer
 				},
 				'type': "post",
 				'success': function () {
-					protocol("offer delivered to server");
+					protocol("answer delivered to server");
 				}
 			});
 		},
@@ -50,17 +53,29 @@ RTC.getUserMedia(function (localstream) {
 			protocol("webRTC successfully completed");
 		}
 	});
+};
+
+RTC.getUserMedia(function (stream) {
+	protocol("localstream available");
+	window.document.getElementById("me").src = window.URL.createObjectURL(stream);
+	localstream = stream;
+	if (localstream && offer) {
+		answerOffer(offer, localstream);
+	}
 });
 window.setInterval(function () {
 	jQuery.ajax({
 		'url': "./signaling.php",
 		'data': {
-			'get': "answer"
+			'get': "offer"
 		},
 		'success': function (response) {
 			if (response.length > 0) {
-				protocol("received answer");
-				connection.insertAnswer(response);
+				protocol("received offer");
+				offer = response;
+				if (localstream && offer) {
+					answerOffer(offer, localstream);
+				}
 			}
 		}
 	});
@@ -70,7 +85,7 @@ window.setInterval(function () {
 <body>
 <h1>Demo 1 - offer.html</h1>
 <p>
-	You are sending an offer to the other user. The other user has to view <a href="./answer.html">answer.html</a> and will receive your offer and hopefully answers it. After that you should receive the answer and after THAT the connection is established and you will see each other's smiles and will be able to talk with each other. WebRTC works then.
+	You are listening to the server and at some time receiving an offer from the other user. When you do so, you're sending an answer back to the server. And when the server sent this answer back to the offerer, he/she will be able to complete the webRTC signaling process.
 </p>
 <div>
 	<video id="remote" width="300px" height="300px" autoplay></video>
