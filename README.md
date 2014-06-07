@@ -27,7 +27,7 @@ This is how you send an offer to someone. And once you receive the answer (that 
 
 After that the connection should be established. This is a two-step-way of establishing a webRTC-connection: first send an offer and then receive the answer.
 
-But of course there is also another part of establishing the connection and that is the other user, who is not sending the offer, but receiving it. 
+But of course there is also another part of establishing the connection and that is the other user, who is not sending the offer, but receiving it.
 
     var getNewsFromServer = function () {
         jQuery.ajax({
@@ -56,6 +56,34 @@ But of course there is also another part of establishing the connection and that
     window.setInterval(getNewsFromServer, 1000);
 
 This part is a bit more complex, because we've also written a part of the signaling process to demonstrate how the answer is coming to the connection.
+
+## Sending data like chat messages
+
+You can send messages with the send-method. You can insert any JSON-objects into the send-method.
+
+    var connection = new RTC.Connection({
+        'sendOffer': function (offer) {
+            //and here we send the offer right sto our signalling server
+            jQuery.ajax({
+                'url': "https://myserver/signaling/start",
+                'data': {
+                    'offer_sdp': offer
+                }
+            });
+        },
+        'receive': function (message) {
+            if (message.type === "chat") {
+                jQuery("<div>").text(message.message).appendTo("#chatwindow");
+            }
+        }
+    });
+
+    connection.send({
+        'type': "chat",
+        'message': "hello :)"
+    });
+
+So you see, you need to define the `receive` option with a function that handles incoming messages. And you can send with ... ´send()´.
 
 ## Signaling
 
