@@ -33,7 +33,8 @@
  *     'sendAnswer': function (answer) {},
  *     'success': function (event) {},
  *     'complete': function () {},
- *     'error': function (error) {}
+ *     'error': function (error) {},
+ *     'receive': function (data) {}
  * });
  *
  */
@@ -70,7 +71,7 @@ RTC = {
         this.peer.onsignalingstatechange = function (event) {
             if (event === "stable") {
                 if (typeof connection.options.complete === "function") {
-                    connection.options.complete.call(connection, event);
+                    //connection.options.complete.call(connection, event); //use datachannel for more reliability
                 }
             }
         };
@@ -82,7 +83,22 @@ RTC = {
             this.peer.addStream(this.options.myaudio);
         }
 
+
         if (this.options.offer) {
+            this.peer.ondatachannel = function (event) {
+                this.datachannel = event.channel;
+                this.datachannel.onmessage = function (event) {
+                    if (event.data === "begin") {
+                        if (typeof connection.options.complete === "function") {
+                            connection.options.complete.call(connection);
+                        }
+                    } else {
+                        if (typeof connection.options.receive === "function") {
+                            connection.options.receive.call(connection, JSON.parse(event.data));
+                        }
+                    }
+                };
+            };
             var dict = RTC.SessionDescription({
                 'type': "offer",
                 'sdp': this.options.offer
@@ -107,6 +123,27 @@ RTC = {
         }
 
         if (!this.options.offer && typeof this.options.sendOffer === "function") {
+
+            //setup data channel
+            this.datachannel = this.peer.createDataChannel("json");
+            this.datachannel.onmessage = function (event) {
+                if (event.data === "begin") {
+                    if (typeof connection.options.complete === "function") {
+                        connection.options.complete.call(connection);
+                    }
+                } else {
+                    if (typeof connection.options.receive === "function") {
+                        connection.options.receive.call(connection, JSON.parse(event.data));
+                    }
+                }
+            };
+            this.datachannel.onopen = function () {
+                this.send("begin");
+                if (typeof connection.options.complete === "function") {
+                    connection.options.complete.call(connection);
+                }
+            };
+
             this.peer.createOffer(function(offer) {
                 connection.peer.setLocalDescription(RTC.SessionDescription(offer), function() {
                     // send the offer to a server to be forwarded the friend you're calling.
@@ -188,4 +225,7 @@ RTC.Connection.prototype.insertAnswer = function (answer) {
             }
         );
     }
-}
+};
+RTC.Connection.prototype.send = function (data) {
+    this.datachannel.send(JSON.stringify(data));
+};
