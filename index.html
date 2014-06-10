@@ -40,7 +40,7 @@
 <p>RTC.Connection is a class so that you can establish a connection by calling </p>
 
 <pre><code>var connection = new RTC.Connection({
-    'myvideo': document.getElementById("#me_smiling_in_the_cam"),
+    'localstream': document.getElementById("#me_smiling_in_the_cam"),
     'video': document.getElementById("#remoteuser_smiling_in_the_cam"),
     'sendOffer': function (offer) {
         //and here we send the offer right sto our signalling server
@@ -77,6 +77,29 @@
 <td><strong><code>sendAnswer</code></strong></td>
 <td align="center">function (sdp) {...}</td>
 <td>This function is called in the middle of signaling by the side/peer that just received an offer. The first and only parameter is the SDP-string and it is up to YOU to deliver that to the other side of the connection. Once you have done that on the other side you must call insertAnswer on the RTC.Connection object that created the offer in the first place. For each connection you should either define <code>sendOffer</code> or <code>offer</code>.</td>
+</tr>
+</tbody>
+</table><h3>
+<a name="methods-of-rtcconnection" class="anchor" href="#methods-of-rtcconnection"><span class="octicon octicon-link"></span></a>Methods of RTC.Connection</h3>
+
+<p>Once you called <code>new RTC.Connection(...)</code> you get an object back. And this object has some important methods that are used to finish establishing the connection or send data-objects to the other side. So don't throw your object into the garbage collector, you will need it again, once you created it.</p>
+
+<table>
+<thead><tr>
+<th>method</th>
+<th align="center">parameter</th>
+<th>effect</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong><code>insertAnswer</code></strong></td>
+<td align="center">string</td>
+<td>This is called for RTC.Connection objects that once created an offer. By calling <code>insertAnswer(answer_sdp)</code> you finish establishing the connection. Right after that the <code>established</code>-event is fired and after that you can start to communicate with each other, the video or audio streams should appear, you can send messages with the <code>send</code> method.</td>
+</tr>
+<tr>
+<td><strong><code>send</code></strong></td>
+<td align="center">JSON-object,string,integer</td>
+<td>Once a connection is established you can send any kind of JSON-objects to the other side with this method. On the other side for each object the event <code>received</code> will get fired.</td>
 </tr>
 </tbody>
 </table>
