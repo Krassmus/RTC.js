@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Rtc.js : A webRTC library that should make an webRTC as easy as jQuery.ajax." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Rtc.js</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/Krassmus/RTC.js">View on GitHub</a>
+
+          <h1 id="project_title">Rtc.js</h1>
+          <h2 id="project_tagline">A webRTC library that should make an webRTC as easy as jQuery.ajax.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/Krassmus/RTC.js/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/Krassmus/RTC.js/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="api-of-rtcjs" class="anchor" href="#api-of-rtcjs"><span class="octicon octicon-link"></span></a>API of RTC.js</h1>
+
+<h2>
+<a name="rtcconnection" class="anchor" href="#rtcconnection"><span class="octicon octicon-link"></span></a>RTC.Connection</h2>
+
+<p>RTC.Connection is a class so that you can establish a connection by calling </p>
+
+<pre><code>var connection = new RTC.Connection({
+    'myvideo': document.getElementById("#me_smiling_in_the_cam"),
+    'video': document.getElementById("#remoteuser_smiling_in_the_cam"),
+    'sendOffer': function (offer) {
+        //and here we send the offer right sto our signalling server
+        jQuery.ajax({
+            'url': "https://myserver/signaling/start",
+            'data': {
+                'offer_sdp': offer
+            }
+        });
+    }
+});
+</code></pre>
+
+<p>The following tables describe all options</p>
+
+<table>
+<thead><tr>
+<th>option</th>
+<th>effect</th>
+<th align="center">default</th>
+</tr></thead>
+<tbody><tr>
+<td><strong><code>sendOffer</code></strong></td>
+<td>This function is called to start signaling. The first and only parameter is the SDP-string and it is up to YOU to deliver that to the other side of the connection. For each connection you should either define <code>sendOffer</code> or <code>offer</code>.</td>
+<td align="center"></td>
+</tr></tbody>
+</table>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Rtc.js maintained by <a href="https://github.com/Krassmus">Krassmus</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
