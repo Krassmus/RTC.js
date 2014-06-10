@@ -59,14 +59,26 @@
 <table>
 <thead><tr>
 <th>option</th>
+<th align="center">expected</th>
 <th>effect</th>
-<th align="center">default</th>
 </tr></thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><strong><code>sendOffer</code></strong></td>
+<td align="center">function (sdp) {...}</td>
 <td>This function is called to start signaling. The first and only parameter is the SDP-string and it is up to YOU to deliver that to the other side of the connection. For each connection you should either define <code>sendOffer</code> or <code>offer</code>.</td>
-<td align="center"></td>
-</tr></tbody>
+</tr>
+<tr>
+<td><strong><code>offer</code></strong></td>
+<td align="center">string</td>
+<td>If you just received an offer, take the SDP-string and build a connection with it to answer it. This parameter ist just the pure SDP string.</td>
+</tr>
+<tr>
+<td><strong><code>sendAnswer</code></strong></td>
+<td align="center">function (sdp) {...}</td>
+<td>This function is called in the middle of signaling by the side/peer that just received an offer. The first and only parameter is the SDP-string and it is up to YOU to deliver that to the other side of the connection. Once you have done that on the other side you must call insertAnswer on the RTC.Connection object that created the offer in the first place. For each connection you should either define <code>sendOffer</code> or <code>offer</code>.</td>
+</tr>
+</tbody>
 </table>
       </section>
     </div>
