@@ -25,14 +25,13 @@
 /**
  * Usage:
  * var connection = new RTC.Connection({
- *     'myvideo': "css selector",
- *     'myaudio': "css selector",
- *     'video': "css selector",
- *     'audio': "css selector",
  *     'sendOffer': function (offer) {},
+ *     'offer': "sdp string",
  *     'sendAnswer': function (answer) {},
- *     'success': function (event) {},
- *     'complete': function () {},
+ *     'localstream': MediaStream or array of MediaStreams,
+ *     'video': DOMElement or jQuery-object or "css selector",
+ *     'audio': "css selector",
+ *     'established': function () {},
  *     'error': function (error) {},
  *     'receive': function (data) {}
  * });
@@ -68,29 +67,18 @@ RTC = {
         this.peer.onaddstream = function (event) {
             connection.options.video.src = window.URL.createObjectURL(event.stream);
         }
-        this.peer.onsignalingstatechange = function (event) {
-            if (event === "stable") {
-                if (typeof connection.options.complete === "function") {
-                    //connection.options.complete.call(connection, event); //use datachannel for more reliability
-                }
-            }
-        };
 
-        if (this.options.myvideo) {
-            this.peer.addStream(this.options.myvideo);
+        if (this.options.localstream) {
+            this.peer.addStream(this.options.localstream);
         }
-        if (this.options.myaudio) {
-            this.peer.addStream(this.options.myaudio);
-        }
-
 
         if (this.options.offer) {
             this.peer.ondatachannel = function (event) {
                 this.datachannel = event.channel;
                 this.datachannel.onmessage = function (event) {
                     if (event.data === "begin") {
-                        if (typeof connection.options.complete === "function") {
-                            connection.options.complete.call(connection);
+                        if (typeof connection.options.established === "function") {
+                            connection.options.established.call(connection);
                         }
                     } else {
                         if (typeof connection.options.receive === "function") {
@@ -128,8 +116,8 @@ RTC = {
             this.datachannel = this.peer.createDataChannel("json");
             this.datachannel.onmessage = function (event) {
                 if (event.data === "begin") {
-                    if (typeof connection.options.complete === "function") {
-                        connection.options.complete.call(connection);
+                    if (typeof connection.options.established === "function") {
+                        connection.options.established.call(connection);
                     }
                 } else {
                     if (typeof connection.options.receive === "function") {
@@ -139,8 +127,8 @@ RTC = {
             };
             this.datachannel.onopen = function () {
                 this.send("begin");
-                if (typeof connection.options.complete === "function") {
-                    connection.options.complete.call(connection);
+                if (typeof connection.options.established === "function") {
+                    connection.options.established.call(connection);
                 }
             };
 

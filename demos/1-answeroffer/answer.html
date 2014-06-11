@@ -2,26 +2,11 @@
 <html>
 <head>
 <title>Demo 1 - answer.html</title>
-<style>
-body {
-	font-family: helvetica, verdana, arial;
-	max-width: 600px;
-	margin-left: auto;
-	margin-right: auto;
-	background-color: #eeeeee;
-}
-h1,h2,h3,h4,h5,h6 {
-	color: #555555;
-}
-video, video:focus {
-	border: 2px solid #888888;
-	background-color: #aaaaaa;
-	border-radius: 10px;
-}
-</style>
+<link rel="stylesheet" href="./style.css" />
 <script src="../../RTC.js" type="text/javascript"></script>
 <script src="./jquery.min.js" type="text/javascript"></script>
 <script type="text/javascript">
+/* just a little logging function to let us see what is happening */
 var protocol = function (text) {
 	jQuery("<li>").text(text).appendTo("#protocol");
 }
@@ -33,7 +18,7 @@ var offer = null;
 var answerOffer = function (offer, stream) {
 	protocol("beginning to answer the offer");
 	var connection = new RTC.Connection({
-		'myvideo': localstream,
+		'localstream': localstream,
 		'video': window.document.getElementById("remote"),
 		'offer': offer,
 		'sendAnswer': function (answer) {
@@ -49,8 +34,8 @@ var answerOffer = function (offer, stream) {
 				}
 			});
 		},
-		'complete': function () {
-			protocol("webRTC successfully completed");
+		'established': function () {
+			protocol("webRTC successfully established");
 		}
 	});
 };
@@ -73,6 +58,7 @@ window.setInterval(function () {
 			if (response.length > 0) {
 				protocol("received offer");
 				offer = response;
+				//if we have both a stream of us and the offer from the other peer:
 				if (localstream && offer) {
 					answerOffer(offer, localstream);
 				}
@@ -85,7 +71,7 @@ window.setInterval(function () {
 <body>
 <h1>Demo 1 - offer.html</h1>
 <p>
-	You are listening to the server and at some time receiving an offer from the other user. When you do so, you're sending an answer back to the server. And when the server sent this answer back to the offerer, he/she will be able to complete the webRTC signaling process.
+	You are listening to the server and at some time receiving an offer from the other user. When you do so, you're sending an answer back to the server. And when the server sent this answer back to the offerer, he/she will be able to establish the webRTC signaling process.
 </p>
 <div>
 	<video id="remote" width="300px" height="300px" autoplay></video>
