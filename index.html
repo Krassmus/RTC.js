@@ -65,7 +65,7 @@
 <tbody>
 <tr>
 <td><strong><code>sendOffer</code></strong></td>
-<td align="center">function (sdp) {...}</td>
+<td align="center">function</td>
 <td>This function is called to start signaling. The first and only parameter is the SDP-string and it is up to YOU to deliver that to the other side of the connection. For each connection you should either define <code>sendOffer</code> or <code>offer</code>.</td>
 </tr>
 <tr>
@@ -75,7 +75,7 @@
 </tr>
 <tr>
 <td><strong><code>sendAnswer</code></strong></td>
-<td align="center">function (sdp) {...}</td>
+<td align="center">function</td>
 <td>This function is called in the middle of signaling by the side/peer that just received an offer. The first and only parameter is the SDP-string and it is up to YOU to deliver that to the other side of the connection. Once you have done that on the other side you must call insertAnswer on the RTC.Connection object that created the offer in the first place. For each connection you should either define <code>sendOffer</code> or <code>offer</code>.</td>
 </tr>
 </tbody>
@@ -98,7 +98,7 @@
 </tr>
 <tr>
 <td><strong><code>send</code></strong></td>
-<td align="center">JSON-object,string,integer</td>
+<td align="center">JSON-object, string, integer</td>
 <td>Once a connection is established you can send any kind of JSON-objects to the other side with this method. On the other side for each object the event <code>received</code> will get fired.</td>
 </tr>
 </tbody>
