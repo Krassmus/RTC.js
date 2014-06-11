@@ -40,10 +40,10 @@
 <p>RTC.Connection is a class so that you can establish a connection by calling </p>
 
 <pre><code>var connection = new RTC.Connection({
-    'localstream': document.getElementById("#me_smiling_in_the_cam"),
+    'localstream': mycamerastream, //a MediaStream object that you could get from RTC.getUserMedia.
     'video': document.getElementById("#remoteuser_smiling_in_the_cam"),
     'sendOffer': function (offer) {
-        //and here we send the offer right sto our signalling server
+        //and here we send the offer right to our signaling server
         jQuery.ajax({
             'url': "https://myserver/signaling/start",
             'data': {
