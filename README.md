@@ -1,7 +1,7 @@
 RTC.js
 ======
 
-A webRTC library that should make an webRTC as easy as jQuery.ajax.
+A webRTC library that should make an webRTC as easy as jQuery.ajax. For a proper API-documentation see the github-page: http://krassmus.github.io/RTC.js/
 
 ## Usage
 
